@@ -1,0 +1,43 @@
+:root {
+    --livre: #2ecc71;
+    --ocupado: #e74c3c;
+    --senai-blue: #004a8d;
+}
+
+body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 20px; }
+header { text-align: center; color: var(--senai-blue); margin-bottom: 30px; }
+
+.grid-salas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card-sala {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 10px solid var(--livre);
+    transition: transform 0.2s;
+}
+
+.card-sala.ocupada { border-left-color: var(--ocupado); }
+
+.card-sala h3 { margin: 0 0 10px 0; }
+.info { font-size: 0.9em; color: #666; margin-bottom: 15px; }
+
+button.btn-acao {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    background: var(--senai-blue);
+}
+
+.btn-liberar { background: #95a5a6 !important; }

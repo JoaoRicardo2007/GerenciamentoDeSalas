@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenaiControl - Painel de Acesso</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>SENAI - Controle de Ambientes</h1>
+        <p>Monitoramento de Salas e Laboratórios em Tempo Real</p>
+    </header>
+
+    <main id="app">
+        <div class="filtros">
+            <button onclick="filtrar('Todos')">Todos</button>
+            <button onclick="filtrar('Térreo')">Térreo</button>
+            <button onclick="filtrar('1º Andar')">1º Andar</button>
+            <button onclick="filtrar('2º Andar')">2º Andar</button>
+        </div>
+
+        <div id="grid-salas" class="grid-salas">
+            <!-- As salas serão inseridas aqui via JS -->
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
