@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "targets": {
     "net10.0": {
       "Humanizer.Core/2.14.1": {
@@ -2460,29 +2460,36 @@
     ]
   },
   "packageFolders": {
-    "/home/joaoricardo/.nuget/packages/": {}
+    "C:\\Users\\João Ricardo\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/joaoricardo/GerenciamentoDeSalas/SenaiControl.csproj",
+      "projectUniqueName": "C:\\Users\\João Ricardo\\GerenciamentoDeSalas\\SenaiControl.csproj",
       "projectName": "SenaiControl",
-      "projectPath": "/home/joaoricardo/GerenciamentoDeSalas/SenaiControl.csproj",
-      "packagesPath": "/home/joaoricardo/.nuget/packages/",
-      "outputPath": "/home/joaoricardo/GerenciamentoDeSalas/obj/",
+      "projectPath": "C:\\Users\\João Ricardo\\GerenciamentoDeSalas\\SenaiControl.csproj",
+      "packagesPath": "C:\\Users\\João Ricardo\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\João Ricardo\\GerenciamentoDeSalas\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/joaoricardo/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\João Ricardo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "/usr/lib64/dotnet/library-packs": {},
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {}
         }
@@ -2497,10 +2504,11 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "10.0.300"
     },
     "frameworks": {
       "net10.0": {
+        "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": {
@@ -2537,7 +2545,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/10.0.108/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

@@ -3,27 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SenaiControl - Painel de Acesso</title>
+    <title>SenaiControl · Controle de Ambientes</title>
+    <meta name="description" content="Monitoramento de salas e laboratórios do SENAI em tempo real.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <h1>SENAI - Controle de Ambientes</h1>
-        <p>Monitoramento de Salas e Laboratórios em Tempo Real</p>
+
+    <header class="topo">
+        <div class="topo-linha">
+            <div class="marca">
+                <span class="marca-selo">SENAI</span>
+                <div>
+                    <h1>Controle de Ambientes</h1>
+                    <p class="subtitulo">Monitoramento de salas e laboratórios em tempo real</p>
+                </div>
+            </div>
+
+            <div class="leitor" aria-label="Resumo de ocupação">
+                <time class="leitor-item leitor-relogio" id="relogio">--:--:--</time>
+                <div class="leitor-item">
+                    <span class="led led--livre" aria-hidden="true"></span>
+                    Livres <strong id="contagem-livre">0</strong>
+                </div>
+                <div class="leitor-item">
+                    <span class="led led--ocupada" aria-hidden="true"></span>
+                    Ocupadas <strong id="contagem-ocupada">0</strong>
+                </div>
+            </div>
+        </div>
     </header>
 
+    <div id="aviso-demo" class="aviso-demo" hidden>
+        Não foi possível conectar à API — exibindo dados de exemplo.
+    </div>
+
     <main id="app">
-        <div class="filtros">
-            <button onclick="filtrar('Todos')">Todos</button>
-            <button onclick="filtrar('Térreo')">Térreo</button>
-            <button onclick="filtrar('1º Andar')">1º Andar</button>
-            <button onclick="filtrar('2º Andar')">2º Andar</button>
-        </div>
+        <nav class="filtros" aria-label="Filtrar por pavimento">
+            <button type="button" data-pavimento="Todos" class="ativo" onclick="filtrar('Todos')">Todos</button>
+            <button type="button" data-pavimento="Térreo" onclick="filtrar('Térreo')">Térreo</button>
+            <button type="button" data-pavimento="1º Pavimento" onclick="filtrar('1º Pavimento')">1º Andar</button>
+            <button type="button" data-pavimento="2º Pavimento" onclick="filtrar('2º Pavimento')">2º Andar</button>
+            <button type="button" data-pavimento="Oficinas" onclick="filtrar('Oficinas')">Oficinas/Galpões</button>
+        </nav>
 
         <div id="grid-salas" class="grid-salas">
-            <!-- As salas serão inseridas aqui via JS -->
+            <p class="carregando">Carregando ambientes…</p>
         </div>
     </main>
+
+    <div id="modal-overlay" class="modal-overlay" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+            <h2 id="modal-titulo">Sala</h2>
+            <p class="modal-sub" id="modal-sub"></p>
+
+            <form id="modal-form">
+                <label class="campo" id="campo-docente" hidden>
+                    <span>Nome do docente</span>
+                    <input type="text" id="input-docente" autocomplete="off">
+                </label>
+
+                <label class="campo">
+                    <span>Senha de acesso</span>
+                    <input type="password" id="input-senha" autocomplete="off">
+                </label>
+
+                <p class="modal-erro" id="modal-erro" hidden></p>
+
+                <div class="modal-acoes">
+                    <button type="button" class="btn-secundario" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-primario" id="modal-confirmar">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
 </body>
