@@ -1,5 +1,6 @@
 /* =========================================================
-   SenaiControl — lógica de painel
+   SenaiControl — Lógica preservada, apenas ícones ajustados
+   para o novo design (Linear/Vercel specs)
    ========================================================= */
 
 const API_URL = '/api/salas';
@@ -9,88 +10,51 @@ let todasAsSalas = [];
 let salaEmEdicao = null;
 let emModoDemo = false;
 
-// Navegação: 'inicio' mostra os blocos/galpões; 'galpao' mostra as
-// salas de um galpão específico (definido por galpaoAtivoId).
-let vista = 'inicio';
+let nivel = 'inicio';
+let setorAtivoId = null;
 let galpaoAtivoId = null;
 
-// Dados de exemplo, usados somente se a API não responder
-// (ex.: ao abrir o arquivo localmente, sem backend).
-//
-// Itens com `salas` (tipo "galpao") são grupos: ao clicar, o usuário
-// navega para uma tela listando as salas daquele galpão em vez de
-// abrir o modal de acesso direto. Substitua os nomes/ids abaixo
-// pelas salas reais de cada galpão quando estiverem cadastradas.
 const DADOS_DEMONSTRACAO = [
-    // ================= GALPÕES =================
     {
-        id: 'galpao-manutencao', nome: 'Oficina de Manutenção', bloco: 'Galpões', tipo: 'galpao',
-        salas: [
-            { id: 'manutencao-a', nome: 'Sala A', estaOcupada: false, docenteAtual: null },
-            { id: 'manutencao-b', nome: 'Sala B', estaOcupada: true, docenteAtual: 'Marcos Silva' },
-            { id: 'manutencao-c', nome: 'Sala C', estaOcupada: false, docenteAtual: null },
+        id: 'setor-galpao', nome: 'Galpão', tipo: 'setor',
+        itens: [
+            {
+                id: 'galpao-manutencao', nome: 'Manutenção', tipo: 'galpao',
+                salas: [
+                    { id: 'manutencao-a', nome: 'Sala A', estaOcupada: false, docenteAtual: null },
+                    { id: 'manutencao-b', nome: 'Sala B', estaOcupada: true, docenteAtual: 'Marcos Silva' },
+                    { id: 'manutencao-c', nome: 'Sala C', estaOcupada: false, docenteAtual: null },
+                ]
+            },
+            {
+                id: 'galpao-automotiva', nome: 'Automotiva', tipo: 'galpao',
+                salas: [
+                    { id: 'automotiva-b', nome: 'Sala B', estaOcupada: false, docenteAtual: null },
+                    { id: 'automotiva-c', nome: 'Sala C', estaOcupada: true, docenteAtual: 'Ana Cardoso' },
+                    { id: 'automotiva-lab', nome: 'Lab Automotiva', estaOcupada: false, docenteAtual: null },
+                ]
+            }
         ]
     },
     {
-        id: 'galpao-automotiva', nome: 'Oficina de Automotiva', bloco: 'Galpões', tipo: 'galpao',
-        salas: [
-            { id: 'automotiva-b', nome: 'Sala B', estaOcupada: false, docenteAtual: null },
-            { id: 'automotiva-c', nome: 'Sala C', estaOcupada: true, docenteAtual: 'Ana Cardoso' },
-            { id: 'automotiva-d', nome: 'Sala D', estaOcupada: false, docenteAtual: null },
-            { id: 'automotiva-e', nome: 'Sala E', estaOcupada: false, docenteAtual: null },
-            { id: 'automotiva-f', nome: 'Sala F', estaOcupada: false, docenteAtual: null },
-            { id: 'automotiva-lab', nome: 'Laboratório de Automotiva', estaOcupada: false, docenteAtual: null },
+        id: 'setor-senailab', nome: 'SenaiLab', tipo: 'setor',
+        itens: [
+            { id: 'senailab-inovacao', nome: 'Lab Inovação', tipo: 'sala', estaOcupada: false, docenteAtual: null },
+            { id: 'senailab-webconf', nome: 'WebConferência', tipo: 'sala', estaOcupada: true, docenteAtual: 'Renato Alves' },
         ]
     },
     {
-        id: 'galpao-usinagem', nome: 'Oficina de Usinagem', bloco: 'Galpões', tipo: 'galpao',
-        salas: [
-            { id: 'usinagem-info-1', nome: 'Laboratório de Informática 1', estaOcupada: false, docenteAtual: null },
-            { id: 'usinagem-info-2', nome: 'Laboratório de Informática 2', estaOcupada: true, docenteAtual: 'Paulo Nunes' },
-            { id: 'usinagem-tridimensional', nome: 'Laboratório Tridimensional', estaOcupada: false, docenteAtual: null },
-            { id: 'usinagem-b', nome: 'Sala B', estaOcupada: false, docenteAtual: null },
+        id: 'setor-bloco-a', nome: 'Bloco A', tipo: 'setor',
+        andares: [
+            {
+                nome: 'Térreo',
+                salas: [
+                    { id: 'a-sala-1', nome: 'Sala 1', estaOcupada: false, docenteAtual: null },
+                    { id: 'a-sala-2', nome: 'Lab Info', estaOcupada: true, docenteAtual: 'Marcos Silva' },
+                ]
+            }
         ]
-    },
-    {
-        id: 'galpao-metalurgia', nome: 'Oficina de Metalurgia', bloco: 'Galpões', tipo: 'galpao',
-        salas: [
-            { id: 'metalurgia-solda', nome: 'Setor de Simuladores de Solda', estaOcupada: false, docenteAtual: null },
-            { id: 'metalurgia-a', nome: 'Sala A', estaOcupada: false, docenteAtual: null },
-            { id: 'metalurgia-b', nome: 'Sala B', estaOcupada: true, docenteAtual: 'Renato Alves' },
-        ]
-    },
-    {
-        id: 'galpao-ajustagem', nome: 'Oficina de Ajustagem', bloco: 'Galpões', tipo: 'galpao',
-        salas: [
-            { id: 'ajustagem-a', nome: 'Sala A', estaOcupada: false, docenteAtual: null },
-            { id: 'ajustagem-b', nome: 'Sala B', estaOcupada: false, docenteAtual: null },
-            { id: 'ajustagem-c', nome: 'Sala C', estaOcupada: false, docenteAtual: null },
-            { id: 'ajustagem-moto', nome: 'Laboratório de Motocicleta', estaOcupada: false, docenteAtual: null },
-            { id: 'ajustagem-colorimetria', nome: 'Laboratório de Colorimetria 02', estaOcupada: false, docenteAtual: null },
-        ]
-    },
-
-    // ================= SENAI LAB =================
-    { id: 'senai-lab-inovacao', nome: 'Laboratório de Inovação', bloco: 'Senai Lab', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'senai-lab-webconf', nome: 'WebConferência', bloco: 'Senai Lab', tipo: 'sala', estaOcupada: true, docenteAtual: 'Renato Alves' },
-
-    // ================= BLOCO A =================
-    { id: 'a-sala-1', nome: 'Sala 1', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-2', nome: 'Sala 2 (Laboratório de Informática)', bloco: 'A', tipo: 'sala', estaOcupada: true, docenteAtual: 'Marcos Silva' },
-    { id: 'a-sala-3', nome: 'Sala 3', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-4', nome: 'Sala 4 (Laboratório de Metrologia)', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-5', nome: 'Sala 5 (Laboratório de Eletro-hidráulica)', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-6', nome: 'Sala 6 (Laboratório de Pneumática)', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-7', nome: 'Sala 7', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-8', nome: 'Sala 8', bloco: 'A', tipo: 'sala', estaOcupada: true, docenteAtual: 'Ana Cardoso' },
-    { id: 'a-sala-9', nome: 'Sala 9', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-10', nome: 'Sala 10', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-11', nome: 'Sala 11', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-12', nome: 'Sala 12 (Laboratório de Informática)', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-13', nome: 'Sala 13', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-14', nome: 'Sala 14', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-15', nome: 'Sala 15 (Laboratório de Segurança no Trabalho)', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-    { id: 'a-sala-16', nome: 'Sala 16', bloco: 'A', tipo: 'sala', estaOcupada: false, docenteAtual: null },
+    }
 ];
 
 function escaparHtml(texto) {
@@ -99,74 +63,98 @@ function escaparHtml(texto) {
     return div.innerHTML;
 }
 
-/* ---------------------------------------------------------
-   Relógio
-   --------------------------------------------------------- */
-
 function iniciarRelogio() {
     const el = document.getElementById('relogio');
-    const atualizar = () => {
-        el.textContent = new Date().toLocaleTimeString('pt-BR');
-    };
+    const atualizar = () => { el.textContent = new Date().toLocaleTimeString('pt-BR'); };
     atualizar();
     setInterval(atualizar, 1000);
 }
 
-/* ---------------------------------------------------------
-   Estrutura de dados: normalização e busca
-   --------------------------------------------------------- */
+function tipoPadrao(no) {
+    if (no.tipo === 'setor' || no.tipo === 'galpao' || no.tipo === 'sala') return no.tipo;
+    if (Array.isArray(no.itens) || Array.isArray(no.andares)) return 'setor';
+    if (Array.isArray(no.salas)) return 'galpao';
+    return 'sala';
+}
 
-// Garante que todo item tenha um `tipo` definido, mesmo vindo de uma
-// API que ainda não conhece o conceito de galpão (nesse caso, tudo
-// é tratado como sala individual, como no comportamento original).
-function normalizarItens(lista) {
-    return lista.map(item => {
-        const tipo = item.tipo || (Array.isArray(item.salas) ? 'galpao' : 'sala');
-        if (tipo === 'galpao') {
-            return { ...item, tipo, salas: normalizarItens(item.salas || []) };
+function construirSetoresAPartirDeListaPlana(lista) {
+    const blocos = [...new Set(lista.map(i => i.bloco))];
+    return blocos.map(bloco => {
+        const itensDoBloco = lista.filter(i => i.bloco === bloco).map(i => ({ ...i, tipo: 'sala' }));
+        const pavimentos = [...new Set(itensDoBloco.map(i => i.pavimento).filter(Boolean))];
+
+        const setor = { id: 'setor-' + slugificar(bloco), nome: bloco, tipo: 'setor' };
+        if (pavimentos.length > 1) {
+            setor.andares = pavimentos.map(pav => ({
+                nome: pav,
+                salas: itensDoBloco.filter(i => i.pavimento === pav)
+            }));
+        } else {
+            setor.itens = itensDoBloco;
         }
-        return { ...item, tipo };
+        return setor;
+    });
+}
+
+function slugificar(texto) {
+    return String(texto).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function normalizarItens(lista) {
+    return (lista || []).map(no => {
+        const tipo = tipoPadrao(no);
+        if (tipo === 'setor') {
+            return {
+                ...no, tipo,
+                itens: no.itens ? normalizarItens(no.itens) : undefined,
+                andares: no.andares ? no.andares.map(a => ({ ...a, salas: normalizarItens(a.salas) })) : undefined,
+            };
+        }
+        if (tipo === 'galpao') {
+            return { ...no, tipo, salas: normalizarItens(no.salas || []) };
+        }
+        return { ...no, tipo: 'sala' };
     });
 }
 
 function encontrarPorId(id, lista = todasAsSalas) {
-    for (const item of lista) {
-        if (String(item.id) === String(id)) return item;
-        if (item.tipo === 'galpao' && Array.isArray(item.salas)) {
-            const achado = encontrarPorId(id, item.salas);
-            if (achado) return achado;
+    for (const no of lista) {
+        if (String(no.id) === String(id)) return no;
+        if (no.itens) { const achado = encontrarPorId(id, no.itens); if (achado) return achado; }
+        if (no.salas) { const achado = encontrarPorId(id, no.salas); if (achado) return achado; }
+        if (no.andares) {
+            for (const andar of no.andares) {
+                const achado = encontrarPorId(id, andar.salas);
+                if (achado) return achado;
+            }
         }
     }
     return null;
 }
 
-// "Achata" a estrutura em uma lista só de salas (folhas), incluindo
-// as que estão dentro de galpões — usado para os contadores do topo.
 function todasSalasFlat(lista = todasAsSalas) {
     let resultado = [];
-    for (const item of lista) {
-        if (item.tipo === 'galpao' && Array.isArray(item.salas)) {
-            resultado = resultado.concat(todasSalasFlat(item.salas));
-        } else {
-            resultado.push(item);
-        }
+    for (const no of lista) {
+        if (no.itens) resultado = resultado.concat(todasSalasFlat(no.itens));
+        else if (no.salas) resultado = resultado.concat(todasSalasFlat(no.salas));
+        else if (no.andares) no.andares.forEach(a => { resultado = resultado.concat(a.salas); });
+        else resultado.push(no);
     }
     return resultado;
 }
 
-/* ---------------------------------------------------------
-   Carregamento de dados
-   --------------------------------------------------------- */
-
 async function carregarSalas() {
     try {
         const res = await fetch(API_URL);
-        if (!res.ok) throw new Error('Resposta inválida da API');
-        todasAsSalas = normalizarItens(await res.json());
+        if (!res.ok) throw new Error('API Offline');
+        const dados = await res.json();
+        const jaEhHierarquica = Array.isArray(dados) && dados.some(
+            i => i && (i.tipo === 'setor' || Array.isArray(i.itens) || Array.isArray(i.andares) || Array.isArray(i.salas))
+        );
+        todasAsSalas = normalizarItens(jaEhHierarquica ? dados : construirSetoresAPartirDeListaPlana(dados));
         emModoDemo = false;
         document.getElementById('aviso-demo').hidden = true;
     } catch (err) {
-        // mantém as alterações já feitas na demonstração em vez de resetar a cada atualização
         todasAsSalas = emModoDemo ? todasAsSalas : normalizarItens(DADOS_DEMONSTRACAO);
         emModoDemo = true;
         document.getElementById('aviso-demo').hidden = false;
@@ -174,118 +162,122 @@ async function carregarSalas() {
     renderizarVistaAtual();
 }
 
-/* ---------------------------------------------------------
-   Navegação entre a visão inicial e a visão de um galpão
-   --------------------------------------------------------- */
-
 function renderizarVistaAtual() {
     atualizarContadores(todasSalasFlat());
 
-    if (vista === 'galpao') {
+    if (nivel === 'galpao') {
+        const setor = encontrarPorId(setorAtivoId);
         const galpao = encontrarPorId(galpaoAtivoId);
-        if (galpao && galpao.tipo === 'galpao') {
-            renderizarGalpao(galpao);
-            return;
-        }
-        // o galpão sumiu da lista (ex.: dados recarregados) — volta para o início
-        vista = 'inicio';
-        galpaoAtivoId = null;
+        if (setor && galpao && galpao.tipo === 'galpao') return renderizarGalpao(setor, galpao);
+        nivel = 'setor'; galpaoAtivoId = null;
+    }
+
+    if (nivel === 'setor') {
+        const setor = encontrarPorId(setorAtivoId);
+        if (setor && setor.tipo === 'setor') return renderizarSetor(setor);
+        nivel = 'inicio'; setorAtivoId = null;
     }
 
     renderizarInicio();
 }
 
-function abrirGalpao(id) {
+function abrirSetor(id) {
+    const setor = encontrarPorId(id);
+    if (!setor || setor.tipo !== 'setor') return;
+    nivel = 'setor'; setorAtivoId = id; galpaoAtivoId = null;
+    renderizarVistaAtual();
+}
+
+function abrirGalpaoDoSetor(id) {
     const galpao = encontrarPorId(id);
     if (!galpao || galpao.tipo !== 'galpao') return;
-    vista = 'galpao';
-    galpaoAtivoId = id;
+    nivel = 'galpao'; galpaoAtivoId = id;
     renderizarVistaAtual();
 }
 
-function voltarParaInicio() {
-    vista = 'inicio';
-    galpaoAtivoId = null;
+function voltar() {
+    if (nivel === 'galpao') { nivel = 'setor'; galpaoAtivoId = null; } 
+    else if (nivel === 'setor') { nivel = 'inicio'; setorAtivoId = null; }
     renderizarVistaAtual();
 }
-
-/* ---------------------------------------------------------
-   Renderização — visão inicial (blocos e galpões)
-   --------------------------------------------------------- */
 
 function renderizarInicio() {
     document.getElementById('cabecalho-visao').hidden = true;
-
     const grid = document.getElementById('grid-salas');
-
     if (todasAsSalas.length === 0) {
         grid.innerHTML = '<p class="vazio">Nenhum ambiente cadastrado.</p>';
         return;
     }
-
-    const blocos = [...new Set(todasAsSalas.map(s => s.bloco))];
-
-    grid.innerHTML = blocos.map(bloco => `
-        <div class="bloco-container">
-            <div class="titulo-bloco">
-                <h2>${escaparHtml(bloco)}</h2>
-                <div class="regua" aria-hidden="true"></div>
-            </div>
-            <div class="planta-baixa">
-                ${todasAsSalas
-                    .filter(s => s.bloco === bloco)
-                    .map(item => item.tipo === 'galpao' ? galpaoParaHtml(item) : salaParaHtml(item))
-                    .join('')}
-            </div>
-        </div>
-    `).join('');
-
+    grid.innerHTML = `<div class="planta-baixa">${todasAsSalas.map(no => {
+        if (no.tipo === 'setor') return setorParaHtml(no);
+        if (no.tipo === 'galpao') return galpaoParaHtml(no);
+        return salaParaHtml(no);
+    }).join('')}</div>`;
     ativarCliques(grid);
 }
 
-/* ---------------------------------------------------------
-   Renderização — visão de um galpão específico
-   --------------------------------------------------------- */
-
-function renderizarGalpao(galpao) {
+function renderizarSetor(setor) {
     const cabecalho = document.getElementById('cabecalho-visao');
     cabecalho.hidden = false;
-    document.getElementById('titulo-visao').textContent = galpao.nome;
+    document.getElementById('titulo-visao').textContent = setor.nome;
+    document.getElementById('btn-voltar-texto').textContent = 'Início';
 
     const grid = document.getElementById('grid-salas');
-    const salas = galpao.salas || [];
-
-    if (salas.length === 0) {
-        grid.innerHTML = '<p class="vazio">Nenhuma sala cadastrada neste galpão ainda.</p>';
+    if (Array.isArray(setor.andares)) {
+        grid.innerHTML = setor.andares.map(andar => `
+            <div class="bloco-container">
+                <header class="titulo-bloco">
+                    <h2>${escaparHtml(andar.nome)}</h2>
+                </header>
+                <div class="planta-baixa">
+                    ${(andar.salas || []).map(salaParaHtml).join('')}
+                </div>
+            </div>
+        `).join('');
+        ativarCliques(grid);
         return;
     }
 
-    grid.innerHTML = `<div class="planta-baixa">${salas.map(salaParaHtml).join('')}</div>`;
+    const itens = setor.itens || [];
+    if (itens.length === 0) {
+        grid.innerHTML = '<p class="vazio">Nenhum ambiente cadastrado.</p>';
+        return;
+    }
+    grid.innerHTML = `<div class="planta-baixa">${itens.map(item => item.tipo === 'galpao' ? galpaoParaHtml(item) : salaParaHtml(item)).join('')}</div>`;
+    ativarCliques(grid);
+}
 
+function renderizarGalpao(setor, galpao) {
+    const cabecalho = document.getElementById('cabecalho-visao');
+    cabecalho.hidden = false;
+    document.getElementById('titulo-visao').textContent = galpao.nome;
+    document.getElementById('btn-voltar-texto').textContent = setor.nome;
+
+    const grid = document.getElementById('grid-salas');
+    const salas = galpao.salas || [];
+    if (salas.length === 0) {
+        grid.innerHTML = '<p class="vazio">Nenhuma sala cadastrada.</p>';
+        return;
+    }
+    grid.innerHTML = `<div class="planta-baixa">${salas.map(salaParaHtml).join('')}</div>`;
     ativarCliques(grid);
 }
 
 function ativarCliques(container) {
     container.querySelectorAll('.sala-mapa').forEach(el => {
         el.addEventListener('click', () => {
-            if (el.dataset.tipo === 'galpao') {
-                abrirGalpao(el.dataset.id);
-            } else {
-                abrirModal(el.dataset.id);
-            }
+            const id = el.dataset.id;
+            if (el.dataset.tipo === 'setor') abrirSetor(id);
+            else if (el.dataset.tipo === 'galpao') abrirGalpaoDoSetor(id);
+            else abrirModal(id);
         });
     });
 }
 
-/* ---------------------------------------------------------
-   Cartões
-   --------------------------------------------------------- */
-
 function salaParaHtml(sala) {
     const status = sala.estaOcupada ? 'ocupada' : 'livre';
     return `
-        <button type="button" class="sala-mapa ${status}" data-id="${sala.id}" data-tipo="sala"
-                aria-label="Sala ${escaparHtml(sala.nome)}, ${sala.estaOcupada ? 'ocupada' : 'livre'}">
+        <button type="button" class="sala-mapa ${status}" data-id="${sala.id}" data-tipo="sala">
             <div class="sala-cabecalho">
                 <span class="sala-nome">${escaparHtml(sala.nome)}</span>
                 ${iconePorta()}
@@ -295,9 +287,7 @@ function salaParaHtml(sala) {
                     <span class="led led--${status}"></span>
                     ${sala.estaOcupada ? 'Ocupada' : 'Livre'}
                 </span>
-                ${sala.estaOcupada && sala.docenteAtual
-                    ? `<span class="sala-docente">${escaparHtml(sala.docenteAtual)}</span>`
-                    : ''}
+                ${sala.estaOcupada && sala.docenteAtual ? `<span class="sala-docente">${escaparHtml(sala.docenteAtual)}</span>` : ''}
             </div>
         </button>
     `;
@@ -308,35 +298,54 @@ function galpaoParaHtml(galpao) {
     const ocupadas = salas.filter(s => s.estaOcupada).length;
     const livres = salas.length - ocupadas;
     return `
-        <button type="button" class="sala-mapa galpao" data-id="${galpao.id}" data-tipo="galpao"
-                aria-label="Galpão ${escaparHtml(galpao.nome)}, ${salas.length} ambientes">
+        <button type="button" class="sala-mapa galpao" data-id="${galpao.id}" data-tipo="galpao">
             <div class="sala-cabecalho">
                 <span class="sala-nome">${escaparHtml(galpao.nome)}</span>
                 ${iconeSeta()}
             </div>
             <div class="sala-rodape">
                 <div class="galpao-contagem">
-                    <span><span class="led led--livre"></span>${livres} livres</span>
-                    <span><span class="led led--ocupada"></span>${ocupadas} ocupadas</span>
+                    <span><span class="led led--livre"></span>${livres}</span>
+                    <span><span class="led led--ocupada"></span>${ocupadas}</span>
                 </div>
             </div>
         </button>
     `;
 }
 
+function setorParaHtml(setor) {
+    const salas = todasSalasFlat([setor]);
+    const ocupadas = salas.filter(s => s.estaOcupada).length;
+    const livres = salas.length - ocupadas;
+    return `
+        <button type="button" class="sala-mapa galpao setor" data-id="${setor.id}" data-tipo="setor">
+            <div class="sala-cabecalho">
+                <span class="sala-nome">${escaparHtml(setor.nome)}</span>
+                ${iconeSeta()}
+            </div>
+            <div class="sala-rodape">
+                <div class="galpao-contagem">
+                    <span><span class="led led--livre"></span>${livres}</span>
+                    <span><span class="led led--ocupada"></span>${ocupadas}</span>
+                </div>
+            </div>
+        </button>
+    `;
+}
+
+// Ícones minimalistas (Feather icons style)
 function iconePorta() {
     return `
-        <svg class="sala-porta" width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <path d="M3 26 L3 3" stroke="var(--linha)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M3 3 A23 23 0 0 1 26 26" stroke="var(--linha)" stroke-width="1.2" stroke-dasharray="2 2"/>
+        <svg class="sala-porta" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line>
         </svg>
     `;
 }
 
 function iconeSeta() {
     return `
-        <svg class="galpao-seta" width="22" height="22" viewBox="0 0 16 16" fill="none">
-            <path d="M6 3 L11 8 L6 13" stroke="var(--linha)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg class="galpao-seta" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
         </svg>
     `;
 }
@@ -346,27 +355,21 @@ function atualizarContadores(salas) {
     document.getElementById('contagem-ocupada').textContent = salas.filter(s => s.estaOcupada).length;
 }
 
-/* ---------------------------------------------------------
-   Modal de acesso
-   --------------------------------------------------------- */
-
 function abrirModal(id) {
     salaEmEdicao = encontrarPorId(id);
-    if (!salaEmEdicao || salaEmEdicao.tipo === 'galpao') return;
+    if (!salaEmEdicao || salaEmEdicao.tipo !== 'sala') return;
 
     const vaiOcupar = !salaEmEdicao.estaOcupada;
 
-    document.getElementById('modal-titulo').textContent =
-        (vaiOcupar ? 'Registrar ocupação — ' : 'Liberar acesso — ') + salaEmEdicao.nome;
-
+    document.getElementById('modal-titulo').textContent = (vaiOcupar ? 'Registrar ocupação' : 'Liberar acesso');
     document.getElementById('modal-sub').textContent = vaiOcupar
-        ? 'Informe o docente responsável e a senha de acesso.'
-        : `Atualmente com ${salaEmEdicao.docenteAtual || 'docente não informado'}. Informe a senha para liberar.`;
+        ? salaEmEdicao.nome
+        : `Atualmente com ${salaEmEdicao.docenteAtual || 'N/I'}`;
 
     document.getElementById('campo-docente').hidden = !vaiOcupar;
     document.getElementById('input-docente').value = '';
     document.getElementById('input-senha').value = '';
-    document.getElementById('modal-confirmar').textContent = vaiOcupar ? 'Ocupar sala' : 'Liberar sala';
+    document.getElementById('modal-confirmar').textContent = vaiOcupar ? 'Confirmar Ocupação' : 'Liberar Sala';
     esconderErroModal();
 
     document.getElementById('modal-overlay').hidden = false;
@@ -396,10 +399,9 @@ async function confirmarModal(evento) {
     const senha = document.getElementById('input-senha').value.trim();
     const docente = document.getElementById('input-docente').value.trim();
 
-    if (!senha) return mostrarErroModal('Informe a senha de acesso.');
-    if (vaiOcupar && !docente) return mostrarErroModal('Informe o nome do docente.');
+    if (!senha) return mostrarErroModal('Autenticação necessária.');
+    if (vaiOcupar && !docente) return mostrarErroModal('Informe o docente.');
 
-    // Sem API real conectada: aplica a alteração localmente para demonstrar o painel.
     if (emModoDemo) {
         salaEmEdicao.estaOcupada = vaiOcupar;
         salaEmEdicao.docenteAtual = vaiOcupar ? docente : null;
@@ -412,7 +414,7 @@ async function confirmarModal(evento) {
     const botao = document.getElementById('modal-confirmar');
     const textoOriginal = botao.textContent;
     botao.disabled = true;
-    botao.textContent = 'Enviando…';
+    botao.textContent = 'Aguarde...';
 
     try {
         const res = await fetch(`${API_URL}/${salaEmEdicao.id}/status`, {
@@ -423,15 +425,13 @@ async function confirmarModal(evento) {
 
         if (!res.ok) {
             const erro = await res.json().catch(() => ({}));
-            mostrarErroModal(erro.message || `Erro ${res.status}: acesso negado.`);
+            mostrarErroModal(erro.message || `Falha na autenticação (Erro ${res.status}).`);
             return;
         }
-
         fecharModal();
         carregarSalas();
     } catch (err) {
-        console.error('SenaiControl — falha ao enviar status da sala:', err);
-        mostrarErroModal('Não foi possível conectar ao servidor. Veja o console (F12) para detalhes.');
+        mostrarErroModal('Erro de conexão com o servidor.');
     } finally {
         botao.disabled = false;
         botao.textContent = textoOriginal;
@@ -445,10 +445,6 @@ document.getElementById('modal-overlay').addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') fecharModal();
 });
-
-/* ---------------------------------------------------------
-   Inicialização
-   --------------------------------------------------------- */
 
 iniciarRelogio();
 carregarSalas();

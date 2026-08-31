@@ -13,11 +13,41 @@ public static class DbInitializer
         var salas = new Sala[]
         {
            // ================= GALPÕES =================
-            new() { Bloco = "Galpões", Pavimento = "Térreo", Nome = "Oficina de Mecânica", Tipo = "Oficina", EstaOcupada = false },
-            new() { Bloco = "Galpões", Pavimento = "Térreo", Nome = "Oficina de Automotiva", Tipo = "Oficina", EstaOcupada = false },
-            new() { Bloco = "Galpões", Pavimento = "Térreo", Nome = "Oficina de Usinagem", Tipo = "Oficina", EstaOcupada = false },
-            new() { Bloco = "Galpões", Pavimento = "Térreo", Nome = "Oficina de Automotiva", Tipo = "Oficina", EstaOcupada = false },
-            new() { Bloco = "Galpões", Pavimento = "Térreo", Nome = "Oficina de Ajustagem", Tipo = "Oficina", EstaOcupada = false },
+            // O campo Pavimento aqui guarda o nome da oficina (galpão) —
+            // é o mesmo mecanismo usado no Bloco A para agrupar por andar,
+            // então o front-end já exibe cada oficina como um grupo com
+            // suas salas dentro, sem precisar de nenhuma mudança lá.
+
+            // Oficina de Manutenção
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Manutenção", Nome = "Sala A", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Manutenção", Nome = "Sala B", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Manutenção", Nome = "Sala C", Tipo = "Oficina", EstaOcupada = false },
+
+            // Oficina de Automotiva
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Sala B", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Sala C", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Sala D", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Sala E", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Sala F", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Automotiva", Nome = "Laboratório de Automotiva", Tipo = "Laboratório", EstaOcupada = false },
+
+            // Oficina de Usinagem
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Usinagem", Nome = "Laboratório de Informática 1", Tipo = "Laboratório", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Usinagem", Nome = "Laboratório de Informática 2", Tipo = "Laboratório", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Usinagem", Nome = "Laboratório Tridimensional", Tipo = "Laboratório", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Usinagem", Nome = "Sala B", Tipo = "Oficina", EstaOcupada = false },
+
+            // Oficina de Metalurgia (era a "Automotiva" duplicada)
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Metalurgia", Nome = "Setor de Simuladores de Solda", Tipo = "Laboratório", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Metalurgia", Nome = "Sala A", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Metalurgia", Nome = "Sala B", Tipo = "Oficina", EstaOcupada = false },
+
+            // Oficina de Ajustagem
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Ajustagem", Nome = "Sala A", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Ajustagem", Nome = "Sala B", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Ajustagem", Nome = "Sala C", Tipo = "Oficina", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Ajustagem", Nome = "Laboratório de Motocicleta", Tipo = "Laboratório", EstaOcupada = false },
+            new() { Bloco = "Galpões", Pavimento = "Oficina de Ajustagem", Nome = "Laboratório de Colorimetria 02", Tipo = "Laboratório", EstaOcupada = false },
 
             // ================= SENAI LAB =================
             new() { Bloco = "Senai Lab", Pavimento = "Térreo", Nome = "Laboratório de Inovação", Tipo = "Laboratório", EstaOcupada = false },

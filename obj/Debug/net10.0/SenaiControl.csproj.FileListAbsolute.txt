@@ -299,6 +299,6 @@ C:/Users/João Ricardo/GerenciamentoDeSalas/obj/Debug/net10.0/ref/SenaiControl.d
 C:/Users/João Ricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/anetyrx9y9-{0}-7bpgn658zb-7bpgn658zb.gz
 C:/Users/João Ricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/mi9pvsz85z-{0}-avlykmujph-avlykmujph.gz
 C:/Users/João Ricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/z0976hhy6e-{0}-6w13jf1fux-6w13jf1fux.gz
-/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/anetyrx9y9-{0}-6ifd6m7qyo-6ifd6m7qyo.gz
-/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/mi9pvsz85z-{0}-ufacjccvk5-ufacjccvk5.gz
-/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/z0976hhy6e-{0}-m5xwv3d8jq-m5xwv3d8jq.gz
+/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/mi9pvsz85z-{0}-23mh4b5qwh-23mh4b5qwh.gz
+/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/z0976hhy6e-{0}-rdboa9r2n3-rdboa9r2n3.gz
+/home/joaoricardo/GerenciamentoDeSalas/obj/Debug/net10.0/compressed/anetyrx9y9-{0}-1lea88vgyu-1lea88vgyu.gz
