@@ -43,13 +43,15 @@
     </div>
 
     <main id="app">
-        <nav class="filtros" aria-label="Filtrar por pavimento">
-            <button type="button" data-pavimento="Todos" class="ativo" onclick="filtrar('Todos')">Todos</button>
-            <button type="button" data-pavimento="Térreo" onclick="filtrar('Térreo')">Térreo</button>
-            <button type="button" data-pavimento="1º Pavimento" onclick="filtrar('1º Pavimento')">1º Andar</button>
-            <button type="button" data-pavimento="2º Pavimento" onclick="filtrar('2º Pavimento')">2º Andar</button>
-            <button type="button" data-pavimento="Oficinas" onclick="filtrar('Oficinas')">Oficinas/Galpões</button>
-        </nav>
+        <div class="cabecalho-visao" id="cabecalho-visao" hidden>
+            <button type="button" class="btn-voltar" id="btn-voltar" onclick="voltarParaInicio()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M10 3 L5 8 L10 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Galpões
+            </button>
+            <h2 class="titulo-visao" id="titulo-visao"></h2>
+        </div>
 
         <div id="grid-salas" class="grid-salas">
             <p class="carregando">Carregando ambientes…</p>
