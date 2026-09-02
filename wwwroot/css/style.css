@@ -19,6 +19,10 @@
     --led-livre-glow: rgba(16, 185, 129, 0.4);
     --led-ocupada: #F43F5E;
     --led-ocupada-glow: rgba(244, 63, 94, 0.4);
+    --led-aberta: #2563eb;
+    --led-aberta-glow: rgba(37, 99, 235, 0.35);
+    --led-fechada: #64748b;
+    --led-fechada-glow: rgba(100, 116, 139, 0.35);
 
     /* Glassmorphism System */
     --glass-bg: rgba(255, 255, 255, 0.85);
@@ -100,19 +104,28 @@ button, input { font-family: inherit; border: none; outline: none; }
 .marca {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.8rem;
 }
 
-.marca-selo {
-    font-family: var(--fonte-titulo);
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #ffffff;
-    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-    border-radius: 8px;
-    padding: 0.6rem 1.2rem;
-    letter-spacing: 0.05em;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+/* Nova classe para a logo oficial */
+.marca-logo-img {
+    height: 38px; /* Altura ideal para o dashboard premium */
+    width: auto;
+    object-fit: contain;
+    /* Sombra bem suave para dar profundidade no background glass */
+    filter: drop-shadow(0 4px 6px rgba(10, 25, 47, 0.08));
+    transition: transform 0.3s var(--spring);
+}
+
+.marca-logo-img:hover {
+    transform: scale(1.03);
+}
+
+/* Garante que o texto fique bem alinhado ao lado da imagem */
+.marca-texto {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .marca h1 {
@@ -179,6 +192,8 @@ button, input { font-family: inherit; border: none; outline: none; }
 
 .led--livre { background: var(--led-livre); box-shadow: 0 0 12px var(--led-livre-glow); }
 .led--ocupada { background: var(--led-ocupada); box-shadow: 0 0 12px var(--led-ocupada-glow); }
+.led--aberta { background: var(--led-aberta); box-shadow: 0 0 12px var(--led-aberta-glow); }
+.led--fechada { background: var(--led-fechada); box-shadow: 0 0 12px var(--led-fechada-glow); }
 
 .sala-mapa.ocupada .led--ocupada::after {
     content: '';
@@ -330,6 +345,8 @@ main#app {
 
 .sala-mapa.livre::before { background: var(--led-livre); }
 .sala-mapa.ocupada::before { background: var(--led-ocupada); }
+.sala-mapa.aberta::before { background: var(--led-aberta); }
+.sala-mapa.fechada::before { background: var(--led-fechada); }
 
 .sala-mapa:hover {
     transform: translateY(-8px) scale(1.02);
@@ -359,6 +376,15 @@ main#app {
 }
 .sala-mapa:hover .sala-porta { opacity: 0.8; color: var(--brand-accent); }
 
+.sala-mapa.biblioteca {
+    border-style: solid;
+    border-color: rgba(37, 99, 235, 0.18);
+}
+
+.sala-mapa.fechada {
+    opacity: 0.82;
+}
+
 .sala-rodape { margin-top: 2rem; }
 
 .sala-status {
@@ -373,8 +399,10 @@ main#app {
 
 .sala-mapa.livre .sala-status { color: var(--led-livre); }
 .sala-mapa.ocupada .sala-status { color: var(--led-ocupada); }
+.sala-mapa.aberta .sala-status { color: var(--led-aberta); }
+.sala-mapa.fechada .sala-status { color: var(--led-fechada); }
 
-.sala-docente {
+.sala-meta {
     display: inline-block;
     margin-top: 1.2rem;
     font-size: 1.2rem;
@@ -384,6 +412,10 @@ main#app {
     padding: 0.6rem 1.2rem;
     border-radius: 8px;
     border-left: 3px solid var(--led-ocupada);
+}
+
+.sala-mapa.biblioteca .sala-meta {
+    border-left-color: var(--led-aberta);
 }
 
 /* Variações */
@@ -472,7 +504,8 @@ main#app {
     margin-bottom: 1rem;
 }
 
-.campo input {
+.campo input,
+.campo select {
     width: 100%;
     background: #f8fafc;
     border: 2px solid #e2e8f0;
@@ -484,10 +517,26 @@ main#app {
     transition: all 0.3s var(--ease);
 }
 
-.campo input:focus {
+.campo input:focus,
+.campo select:focus {
     background: #ffffff;
     border-color: var(--brand-accent);
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.campo select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-tertiary) 50%), linear-gradient(135deg, var(--text-tertiary) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1.8rem), calc(100% - 14px) calc(1.8rem);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 4rem;
+}
+
+.campo-dupla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
 }
 
 .modal-erro {
@@ -559,6 +608,7 @@ main#app {
     main#app { width: 92%; padding-bottom: 4rem; }
     .planta-baixa { grid-template-columns: 1fr; }
     .modal { padding: 2.5rem 2rem; }
+    .campo-dupla { grid-template-columns: 1fr; }
     .modal-acoes { flex-direction: column-reverse; }
     .btn-secundario, .btn-primario { width: 100%; text-align: center; }
 }

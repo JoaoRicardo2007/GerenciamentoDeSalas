@@ -5,6 +5,7 @@
 
 const API_URL = '/api/salas';
 const INTERVALO_ATUALIZACAO = 10000;
+const TURMAS_PADRAO = ['APB-028.025'];
 
 let todasAsSalas = [];
 let salaEmEdicao = null;
@@ -40,7 +41,8 @@ const DADOS_DEMONSTRACAO = [
         id: 'setor-senailab', nome: 'SenaiLab', tipo: 'setor',
         itens: [
             { id: 'senailab-inovacao', nome: 'Lab Inovação', tipo: 'sala', estaOcupada: false, docenteAtual: null },
-            { id: 'senailab-webconf', nome: 'WebConferência', tipo: 'sala', estaOcupada: true, docenteAtual: 'Renato Alves' },
+            { id: 'senailab-webconf', nome: 'WebConferência', tipo: 'sala', estaOcupada: true, docenteAtual: 'Renato Alves', turma: '3A', horarioInicio: '19:00', horarioFim: '21:00' },
+            { id: 'senailab-biblioteca', nome: 'Biblioteca', tipo: 'biblioteca', estaOcupada: false },
         ]
     },
     {
@@ -71,7 +73,8 @@ function iniciarRelogio() {
 }
 
 function tipoPadrao(no) {
-    if (no.tipo === 'setor' || no.tipo === 'galpao' || no.tipo === 'sala') return no.tipo;
+    const tipo = String(no.tipo ?? '').toLowerCase();
+    if (tipo === 'setor' || tipo === 'galpao' || tipo === 'biblioteca' || tipo === 'sala') return tipo;
     if (Array.isArray(no.itens) || Array.isArray(no.andares)) return 'setor';
     if (Array.isArray(no.salas)) return 'galpao';
     return 'sala';
@@ -80,7 +83,10 @@ function tipoPadrao(no) {
 function construirSetoresAPartirDeListaPlana(lista) {
     const blocos = [...new Set(lista.map(i => i.bloco))];
     return blocos.map(bloco => {
-        const itensDoBloco = lista.filter(i => i.bloco === bloco).map(i => ({ ...i, tipo: 'sala' }));
+        const itensDoBloco = lista.filter(i => i.bloco === bloco).map(i => {
+            const tipoBruto = String(i.tipo ?? i.Tipo ?? '').toLowerCase();
+            return { ...i, tipo: tipoBruto === 'biblioteca' ? 'biblioteca' : 'sala' };
+        });
         const pavimentos = [...new Set(itensDoBloco.map(i => i.pavimento).filter(Boolean))];
 
         const setor = { id: 'setor-' + slugificar(bloco), nome: bloco, tipo: 'setor' };
@@ -113,8 +119,22 @@ function normalizarItens(lista) {
         if (tipo === 'galpao') {
             return { ...no, tipo, salas: normalizarItens(no.salas || []) };
         }
-        return { ...no, tipo: 'sala' };
+        return { ...no, tipo };
     });
+}
+
+function ambientesOcupaveis(lista = []) {
+    return lista.filter(item => item.tipo !== 'biblioteca');
+}
+
+function bibliotecaAbertaAgora() {
+    const dia = new Date().getDay();
+    return dia === 2 || dia === 4;
+}
+
+function formatarHorarioUso(sala) {
+    if (!sala.horarioInicio || !sala.horarioFim) return '';
+    return `${escaparHtml(sala.horarioInicio)} - ${escaparHtml(sala.horarioFim)}`;
 }
 
 function encontrarPorId(id, lista = todasAsSalas) {
@@ -269,15 +289,31 @@ function ativarCliques(container) {
             const id = el.dataset.id;
             if (el.dataset.tipo === 'setor') abrirSetor(id);
             else if (el.dataset.tipo === 'galpao') abrirGalpaoDoSetor(id);
+            else if (el.dataset.tipo === 'biblioteca') return;
             else abrirModal(id);
         });
     });
 }
 
 function salaParaHtml(sala) {
-    const status = sala.estaOcupada ? 'ocupada' : 'livre';
+    const ehBiblioteca = sala.tipo === 'biblioteca';
+    const bibliotecaAberta = ehBiblioteca ? bibliotecaAbertaAgora() : false;
+    const status = ehBiblioteca ? (bibliotecaAberta ? 'aberta' : 'fechada') : (sala.estaOcupada ? 'ocupada' : 'livre');
+    const statusTexto = ehBiblioteca ? (bibliotecaAberta ? 'Aberta agora' : 'Fechada agora') : (sala.estaOcupada ? 'Ocupada' : 'Livre');
+    const detalhes = [];
+
+    if (!ehBiblioteca && sala.estaOcupada) {
+        if (sala.docenteAtual) detalhes.push(escaparHtml(sala.docenteAtual));
+        if (sala.turma) detalhes.push(`Turma ${escaparHtml(sala.turma)}`);
+        if (sala.horarioInicio && sala.horarioFim) detalhes.push(`${escaparHtml(sala.horarioInicio)} - ${escaparHtml(sala.horarioFim)}`);
+    }
+
+    if (ehBiblioteca) {
+        detalhes.push('Terça e quinta');
+    }
+
     return `
-        <button type="button" class="sala-mapa ${status}" data-id="${sala.id}" data-tipo="sala">
+        <button type="button" class="sala-mapa ${status} ${ehBiblioteca ? 'biblioteca' : ''}" data-id="${sala.id}" data-tipo="${ehBiblioteca ? 'biblioteca' : 'sala'}">
             <div class="sala-cabecalho">
                 <span class="sala-nome">${escaparHtml(sala.nome)}</span>
                 ${iconePorta()}
@@ -285,16 +321,16 @@ function salaParaHtml(sala) {
             <div class="sala-rodape">
                 <span class="sala-status">
                     <span class="led led--${status}"></span>
-                    ${sala.estaOcupada ? 'Ocupada' : 'Livre'}
+                    ${statusTexto}
                 </span>
-                ${sala.estaOcupada && sala.docenteAtual ? `<span class="sala-docente">${escaparHtml(sala.docenteAtual)}</span>` : ''}
+                ${detalhes.length > 0 ? `<span class="sala-meta">${detalhes.join(' · ')}</span>` : ''}
             </div>
         </button>
     `;
 }
 
 function galpaoParaHtml(galpao) {
-    const salas = galpao.salas || [];
+    const salas = ambientesOcupaveis(galpao.salas || []);
     const ocupadas = salas.filter(s => s.estaOcupada).length;
     const livres = salas.length - ocupadas;
     return `
@@ -314,7 +350,7 @@ function galpaoParaHtml(galpao) {
 }
 
 function setorParaHtml(setor) {
-    const salas = todasSalasFlat([setor]);
+    const salas = ambientesOcupaveis(todasSalasFlat([setor]));
     const ocupadas = salas.filter(s => s.estaOcupada).length;
     const livres = salas.length - ocupadas;
     return `
@@ -351,8 +387,9 @@ function iconeSeta() {
 }
 
 function atualizarContadores(salas) {
-    document.getElementById('contagem-livre').textContent = salas.filter(s => !s.estaOcupada).length;
-    document.getElementById('contagem-ocupada').textContent = salas.filter(s => s.estaOcupada).length;
+    const ocupaveis = ambientesOcupaveis(salas);
+    document.getElementById('contagem-livre').textContent = ocupaveis.filter(s => !s.estaOcupada).length;
+    document.getElementById('contagem-ocupada').textContent = ocupaveis.filter(s => s.estaOcupada).length;
 }
 
 function abrirModal(id) {
@@ -367,7 +404,14 @@ function abrirModal(id) {
         : `Atualmente com ${salaEmEdicao.docenteAtual || 'N/I'}`;
 
     document.getElementById('campo-docente').hidden = !vaiOcupar;
+    document.getElementById('campo-turma').hidden = !vaiOcupar;
+    document.getElementById('campo-turma-extra').hidden = true;
+    document.getElementById('campo-horario').hidden = !vaiOcupar;
     document.getElementById('input-docente').value = '';
+    document.getElementById('input-turma').value = '';
+    document.getElementById('input-turma-extra').value = '';
+    document.getElementById('input-horario-inicio').value = '';
+    document.getElementById('input-horario-fim').value = '';
     document.getElementById('input-senha').value = '';
     document.getElementById('modal-confirmar').textContent = vaiOcupar ? 'Confirmar Ocupação' : 'Liberar Sala';
     esconderErroModal();
@@ -391,6 +435,29 @@ function esconderErroModal() {
     document.getElementById('modal-erro').hidden = true;
 }
 
+function popularTurmasSelect() {
+    const select = document.getElementById('input-turma');
+    select.innerHTML = '<option value="">Selecione uma turma</option>';
+
+    TURMAS_PADRAO.forEach(turma => {
+        const option = document.createElement('option');
+        option.value = turma;
+        option.textContent = turma;
+        select.appendChild(option);
+    });
+
+    const optionNova = document.createElement('option');
+    optionNova.value = '__outra__';
+    optionNova.textContent = 'Outra turma';
+    select.appendChild(optionNova);
+}
+
+function atualizarCampoTurmaExtra() {
+    const select = document.getElementById('input-turma');
+    const campoExtra = document.getElementById('campo-turma-extra');
+    campoExtra.hidden = select.value !== '__outra__';
+}
+
 async function confirmarModal(evento) {
     evento.preventDefault();
     if (!salaEmEdicao) return;
@@ -398,19 +465,38 @@ async function confirmarModal(evento) {
     const vaiOcupar = !salaEmEdicao.estaOcupada;
     const senha = document.getElementById('input-senha').value.trim();
     const docente = document.getElementById('input-docente').value.trim();
+    const turmaSelecionada = document.getElementById('input-turma').value;
+    const turmaExtra = document.getElementById('input-turma-extra').value.trim();
+    const horarioInicio = document.getElementById('input-horario-inicio').value;
+    const horarioFim = document.getElementById('input-horario-fim').value;
+    const turma = turmaSelecionada === '__outra__' ? turmaExtra : turmaSelecionada;
 
     if (!senha) return mostrarErroModal('Autenticação necessária.');
     if (vaiOcupar && !docente) return mostrarErroModal('Informe o docente.');
+    if (vaiOcupar && !turma) return mostrarErroModal('Informe a turma.');
+    if (vaiOcupar && !horarioInicio) return mostrarErroModal('Informe o horário inicial.');
+    if (vaiOcupar && !horarioFim) return mostrarErroModal('Informe o horário final.');
+    if (vaiOcupar && turmaSelecionada === '__outra__' && !turmaExtra) return mostrarErroModal('Informe a nova turma.');
 
     if (emModoDemo) {
         salaEmEdicao.estaOcupada = vaiOcupar;
         salaEmEdicao.docenteAtual = vaiOcupar ? docente : null;
+        salaEmEdicao.turma = vaiOcupar ? turma : null;
+        salaEmEdicao.horarioInicio = vaiOcupar ? horarioInicio : null;
+        salaEmEdicao.horarioFim = vaiOcupar ? horarioFim : null;
         fecharModal();
         renderizarVistaAtual();
         return;
     }
 
-    const payload = { senha, docenteAtual: vaiOcupar ? docente : null, ocupar: vaiOcupar };
+    const payload = {
+        senha,
+        turma: vaiOcupar ? turma : null,
+        horarioInicio: vaiOcupar ? horarioInicio : null,
+        horarioFim: vaiOcupar ? horarioFim : null,
+        docenteAtual: vaiOcupar ? docente : null,
+        ocupar: vaiOcupar
+    };
     const botao = document.getElementById('modal-confirmar');
     const textoOriginal = botao.textContent;
     botao.disabled = true;
@@ -439,6 +525,7 @@ async function confirmarModal(evento) {
 }
 
 document.getElementById('modal-form').addEventListener('submit', confirmarModal);
+document.getElementById('input-turma').addEventListener('change', atualizarCampoTurmaExtra);
 document.getElementById('modal-overlay').addEventListener('click', (e) => {
     if (e.target.id === 'modal-overlay') fecharModal();
 });
@@ -447,5 +534,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 iniciarRelogio();
+popularTurmasSelect();
 carregarSalas();
 setInterval(carregarSalas, INTERVALO_ATUALIZACAO);

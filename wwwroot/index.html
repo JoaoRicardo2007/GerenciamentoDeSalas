@@ -17,12 +17,12 @@
     <header class="topo">
         <div class="topo-linha">
             <div class="marca">
-                <div class="marca-logo">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                </div>
+            <!-- Logo oficial inserida aqui -->
+                <img src="img/SENAI_logo_2024.png" alt="Logo SENAI" class="marca-logo-img">
+            
                 <div class="marca-texto">
-                    <h1>SpaceFlow</h1>
-                    <p class="subtitulo">Monitoramento de Ambientes</p>
+                    <h1>Controle de Ambientes</h1>
+                    <p class="subtitulo">Monitoramento de salas e laboratórios em tempo real</p>
                 </div>
             </div>
 
@@ -76,6 +76,30 @@
                     <span class="campo-rotulo">Docente responsável</span>
                     <input type="text" id="input-docente" class="campo-input" autocomplete="off" placeholder="Nome completo">
                 </label>
+
+                <label class="campo" id="campo-turma" hidden>
+                    <span class="campo-rotulo">Turma</span>
+                    <select id="input-turma" class="campo-input">
+                        <option value="">Selecione uma turma</option>
+                    </select>
+                </label>
+
+                <label class="campo" id="campo-turma-extra" hidden>
+                    <span class="campo-rotulo">Nova turma</span>
+                    <input type="text" id="input-turma-extra" class="campo-input" autocomplete="off" placeholder="Ex: 4A">
+                </label>
+
+                <div class="campo-dupla" id="campo-horario" hidden>
+                    <label class="campo">
+                        <span class="campo-rotulo">Início do uso</span>
+                        <input type="time" id="input-horario-inicio" class="campo-input">
+                    </label>
+
+                    <label class="campo">
+                        <span class="campo-rotulo">Fim do uso</span>
+                        <input type="time" id="input-horario-fim" class="campo-input">
+                    </label>
+                </div>
 
                 <label class="campo">
                     <span class="campo-rotulo">Senha de autenticação</span>

@@ -41,9 +41,31 @@ public class SalasController : ControllerBase
         {
             if (request.Ocupar)
             {
+                if (string.IsNullOrWhiteSpace(request.DocenteAtual) ||
+                    string.IsNullOrWhiteSpace(request.Turma) ||
+                    string.IsNullOrWhiteSpace(request.HorarioInicio) ||
+                    string.IsNullOrWhiteSpace(request.HorarioFim))
+                {
+                    return BadRequest(new { message = "Informe docente, turma e horário de uso." });
+                }
+
+                if (!TimeOnly.TryParse(request.HorarioInicio, out var horarioInicio) ||
+                    !TimeOnly.TryParse(request.HorarioFim, out var horarioFim))
+                {
+                    return BadRequest(new { message = "Informe um horário válido." });
+                }
+
+                if (horarioFim <= horarioInicio)
+                {
+                    return BadRequest(new { message = "O horário final deve ser maior que o inicial." });
+                }
+
                 // Regra para Ocupar
                 sala.EstaOcupada = true;
-                sala.DocenteAtual = request.DocenteAtual;
+                sala.DocenteAtual = request.DocenteAtual.Trim();
+                sala.Turma = request.Turma.Trim();
+                sala.HorarioInicio = request.HorarioInicio.Trim();
+                sala.HorarioFim = request.HorarioFim.Trim();
                 sala.HorarioUso = DateTime.Now;
             }
             else
@@ -51,6 +73,9 @@ public class SalasController : ControllerBase
                 // Regra para Liberar
                 sala.EstaOcupada = false;
                 sala.DocenteAtual = null;
+                sala.Turma = null;
+                sala.HorarioInicio = null;
+                sala.HorarioFim = null;
                 sala.HorarioUso = null;
             }
 

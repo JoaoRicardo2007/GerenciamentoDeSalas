@@ -20,6 +20,12 @@ public class Sala
     public bool EstaOcupada { get; set; } // Nome padronizado
     
     public string? DocenteAtual { get; set; }
+
+    public string? Turma { get; set; }
+
+    public string? HorarioInicio { get; set; }
+
+    public string? HorarioFim { get; set; }
     
     public DateTime? HorarioUso { get; set; } // Nome padronizado
 
